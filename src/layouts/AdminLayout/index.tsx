@@ -113,6 +113,7 @@ const AdminLayout = () => {
                     collapsible
                     collapsed={collapsed}
                     onCollapse={(value) => setCollapsed(value)}
+                    width={268}
                 >
                     <div
                         style={{ height: 32, margin: 16, textAlign: 'center' }}

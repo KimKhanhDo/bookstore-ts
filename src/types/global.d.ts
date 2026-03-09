@@ -2,15 +2,19 @@
 export {};
 
 declare global {
-    // IBackendRes<T> tái sử dụng được cho mọi API, chỉ cần đổi T — đó chính là sức mạnh của Generic.
-    // → Là cái HỘP NGOÀI — chứa statusCode, message, và data
-    // → data có type T — tức là bên trong chứa gì tùy mình truyền vào
-    // "Cái hộp ngoài (IBackendRes) chứa bên trong là ILogin"
+    /**
+     * "Cái hộp ngoài" mà server luôn trả về.
+     * Bên trong chứa gì tùy vào T bạn truyền vào.
+     *
+     * VD: IBackendRes<ILogin>  → data là thông tin login
+     *     IBackendRes<IUser[]> → data là danh sách user
+     *     IBackendRes<null>    → không cần data (delete, logout)
+     */
     interface IBackendRes<T> {
+        statusCode: number | string;
         error?: string | string[];
         message: string;
-        statusCode: number | string;
-        data?: T; //  → T = ILogin
+        data?: T;
     }
 
     interface IModelPaginate<T> {
@@ -20,7 +24,7 @@ declare global {
             pages: number;
             total: number;
         };
-        results: T[];
+        result: T[];
     }
 
     //  backend luôn trả về cùng một cấu trúc, chỉ có data là thay đổi tùy từng API:
@@ -54,5 +58,23 @@ declare global {
 
     interface IFetchAccount {
         user: IUser;
+    }
+
+    interface IUserTable {
+        _id: string;
+        fullName: string;
+        email: string;
+        phone: string;
+        role: string;
+        avatar: string;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+    }
+
+    interface IResponseImport {
+        countSuccess: number;
+        countError: number;
+        detail: any;
     }
 }
