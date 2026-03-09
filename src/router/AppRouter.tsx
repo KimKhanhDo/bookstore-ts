@@ -5,17 +5,17 @@ import {
 
 import ProtectedRoute from '@/router/Auth/ProtectedRoute';
 import MainLayout from '@/layouts/MainLayout';
-import AboutPage from '@/pages/User/AboutPage';
-import BookPage from '@/pages/User/BookPage';
-import HomePage from '@/pages/User/HomePage';
-import RegisterPage from '@/pages/User/Auth/RegisterPage';
-import LoginPage from '@/pages/User/Auth/LoginPage';
+import AboutPage from '@/pages/Client/AboutPage';
+import BookPage from '@/pages/Client/BookPage';
+import HomePage from '@/pages/Client/HomePage';
+import RegisterPage from '@/pages/Client/Auth/RegisterPage';
+import LoginPage from '@/pages/Client/Auth/LoginPage';
 import AdminLayout from '@/layouts/AdminLayout';
 import DashBoard from '@/pages/Admin/DashBoard';
 import ManageBook from '@/pages/Admin/ManageBook';
 import ManageOrder from '@/pages/Admin/ManageOrder';
 import ManageUser from '@/pages/Admin/ManageUser';
-import CheckOutPage from '@/pages/User/CheckOutPage';
+import CheckOutPage from '@/pages/Client/CheckOutPage';
 
 const router = Router([
     {
@@ -24,7 +24,7 @@ const router = Router([
         children: [
             // Public routes - không cần login
             { index: true, element: <HomePage /> },
-            { path: '/book', element: <BookPage /> },
+            { path: '/book/:id', element: <BookPage /> },
             { path: '/about', element: <AboutPage /> },
 
             // Protected routes - cần login
