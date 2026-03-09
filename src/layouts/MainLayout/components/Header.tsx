@@ -1,30 +1,46 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { Link } from 'react-router-dom';
 import { FaReact } from 'react-icons/fa';
 import { FiShoppingCart } from 'react-icons/fi';
 import { VscSearchFuzzy } from 'react-icons/vsc';
-import { Divider, Badge, Drawer, Avatar, Popover } from 'antd';
+import { Divider, Badge, Drawer, Avatar, Popover, Empty } from 'antd';
 import { Dropdown, Space } from 'antd';
+import { useNavigate } from 'react-router';
+import { Link } from 'react-router-dom';
 
 import './Header.scss';
+import { isMobile } from 'react-device-detect';
 import { useCurrentApp } from '@/context/AppContext';
 import { logOutAPI } from '@/services/api';
+import ManageAccount from '@/components/client/account/ManageAccount';
 
-const Header = (props: any) => {
+interface IProps {
+    searchTerm: string;
+    setSearchTerm: (v: string) => void;
+}
+
+const AppHeader = (props: IProps) => {
     const [openDrawer, setOpenDrawer] = useState(false);
-    const { isAuthenticated, user, setUser, setIsAuthenticated } =
-        useCurrentApp();
+    const [openManageAccount, setOpenManageAccount] = useState<boolean>(false);
+
+    const {
+        isAuthenticated,
+        user,
+        setUser,
+        setIsAuthenticated,
+        carts,
+        setCarts,
+    } = useCurrentApp();
 
     const navigate = useNavigate();
 
     const handleLogout = async () => {
-        //todo
         const res = await logOutAPI();
         if (res.data) {
             setUser(null);
+            setCarts([]);
             setIsAuthenticated(false);
             localStorage.removeItem('access_token');
+            localStorage.removeItem('carts');
         }
     };
 
@@ -33,7 +49,7 @@ const Header = (props: any) => {
             label: (
                 <label
                     style={{ cursor: 'pointer' }}
-                    onClick={() => alert('me')}
+                    onClick={() => setOpenManageAccount(true)}
                 >
                     Manage Account
                 </label>
@@ -41,7 +57,7 @@ const Header = (props: any) => {
             key: 'account',
         },
         {
-            label: <Link to="/history">Order History</Link>,
+            label: <Link to="/history">Purchase History</Link>,
             key: 'history',
         },
         {
@@ -50,7 +66,7 @@ const Header = (props: any) => {
                     style={{ cursor: 'pointer' }}
                     onClick={() => handleLogout()}
                 >
-                    Logout
+                    Log Out
                 </label>
             ),
             key: 'logout',
@@ -69,28 +85,37 @@ const Header = (props: any) => {
     const contentPopover = () => {
         return (
             <div className="pop-cart-body">
-                {/* <div className='pop-cart-content'>
+                <div className="pop-cart-content">
                     {carts?.map((book, index) => {
                         return (
-                            <div className='book' key={`book-${index}`}>
-                                <img src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${book?.detail?.thumbnail}`} />
+                            <div
+                                className="book"
+                                key={`book-${index}`}
+                            >
+                                <img
+                                    src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${book?.detail?.thumbnail}`}
+                                />
                                 <div>{book?.detail?.mainText}</div>
-                                <div className='price'>
-                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(book?.detail?.price ?? 0)}
+                                <div className="price">
+                                    {new Intl.NumberFormat('vi-VN', {
+                                        style: 'currency',
+                                        currency: 'VND',
+                                    }).format(book?.detail?.price ?? 0)}
                                 </div>
                             </div>
-                        )
+                        );
                     })}
                 </div>
-                {carts.length > 0 ?
-                    <div className='pop-cart-footer'>
-                        <button onClick={() => navigate('/order')}>View Cart</button>
+
+                {carts.length > 0 ? (
+                    <div className="pop-cart-footer">
+                        <button onClick={() => navigate('/order')}>
+                            View Cart
+                        </button>
                     </div>
-                    :
-                    <Empty
-                        description="No items in cart"
-                    />
-                } */}
+                ) : (
+                    <Empty description="No products in the cart" />
+                )}
             </div>
         );
     };
@@ -108,56 +133,71 @@ const Header = (props: any) => {
                         >
                             ☰
                         </div>
+
                         <div className="page-header__logo">
                             <span className="logo">
                                 <span onClick={() => navigate('/')}>
-                                    {' '}
                                     <FaReact className="rotate icon-react" />
                                     Bookstore
                                 </span>
 
                                 <VscSearchFuzzy className="icon-search" />
                             </span>
+
                             <input
                                 className="input-search"
                                 type={'text'}
-                                placeholder="What are you looking for?"
-                                // value={props.searchTerm}
-                                // onChange={(e) => props.setSearchTerm(e.target.value)}
+                                placeholder="What are you looking for today?"
+                                value={props.searchTerm}
+                                onChange={(e) =>
+                                    props.setSearchTerm(e.target.value)
+                                }
                             />
                         </div>
                     </div>
+
                     <nav className="page-header__bottom">
                         <ul
                             id="navigation"
                             className="navigation"
                         >
                             <li className="navigation__item">
-                                <Popover
-                                    className="popover-carts"
-                                    placement="topRight"
-                                    rootClassName="popover-carts"
-                                    title={'Recently Added Items'}
-                                    content={contentPopover}
-                                    arrow={true}
-                                >
+                                {!isMobile ? (
+                                    <Popover
+                                        className="popover-carts"
+                                        placement="topRight"
+                                        rootClassName="popover-carts"
+                                        title={'Recently Added Products'}
+                                        content={contentPopover}
+                                        arrow={true}
+                                    >
+                                        <Badge
+                                            count={carts?.length ?? 0}
+                                            size={'small'}
+                                            showZero
+                                        >
+                                            <FiShoppingCart className="icon-cart" />
+                                        </Badge>
+                                    </Popover>
+                                ) : (
                                     <Badge
-                                        // count={carts?.length ?? 0}
-                                        count={10}
+                                        count={carts?.length ?? 0}
                                         size={'small'}
                                         showZero
+                                        onClick={() => navigate('/order')}
                                     >
                                         <FiShoppingCart className="icon-cart" />
                                     </Badge>
-                                </Popover>
+                                )}
                             </li>
+
                             <li className="navigation__item mobile">
                                 <Divider type="vertical" />
                             </li>
+
                             <li className="navigation__item mobile">
                                 {!isAuthenticated ? (
                                     <span onClick={() => navigate('/login')}>
-                                        {' '}
                                         Account
                                     </span>
                                 ) : (
@@ -176,20 +216,26 @@ const Header = (props: any) => {
                     </nav>
                 </header>
             </div>
+
             <Drawer
-                title="Menu"
+                title="Feature Menu"
                 placement="left"
                 onClose={() => setOpenDrawer(false)}
                 open={openDrawer}
             >
-                <p>Account Settings</p>
+                <p>Manage Account</p>
                 <Divider />
 
-                <p onClick={handleLogout}>Logout</p>
+                <p onClick={() => handleLogout()}>Log Out</p>
                 <Divider />
             </Drawer>
+
+            <ManageAccount
+                isModalOpen={openManageAccount}
+                setIsModalOpen={setOpenManageAccount}
+            />
         </>
     );
 };
 
-export default Header;
+export default AppHeader;

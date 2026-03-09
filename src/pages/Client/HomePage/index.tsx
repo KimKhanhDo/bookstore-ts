@@ -18,7 +18,7 @@ import { useNavigate, useOutletContext } from 'react-router-dom';
 
 import { getBooksAPI, getCategoryAPI } from '@/services/api';
 import './HomePage.scss';
-import MobileFilter from '@/components/client/book/mobile.filter';
+import MobileFilter from '@/components/client/book/MobileFilter';
 
 type FieldType = {
     range: {

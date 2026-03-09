@@ -1,4 +1,4 @@
-import TableBook from '@/components/admin/book/table.book';
+import TableBook from '@/components/admin/book/TableBook';
 
 const ManageBook = () => {
     return (

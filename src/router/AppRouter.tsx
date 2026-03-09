@@ -5,17 +5,18 @@ import {
 
 import ProtectedRoute from '@/router/Auth/ProtectedRoute';
 import MainLayout from '@/layouts/MainLayout';
+import AdminLayout from '@/layouts/AdminLayout';
 import AboutPage from '@/pages/Client/AboutPage';
 import BookPage from '@/pages/Client/BookPage';
 import HomePage from '@/pages/Client/HomePage';
 import RegisterPage from '@/pages/Client/Auth/RegisterPage';
 import LoginPage from '@/pages/Client/Auth/LoginPage';
-import AdminLayout from '@/layouts/AdminLayout';
 import DashBoard from '@/pages/Admin/DashBoard';
 import ManageBook from '@/pages/Admin/ManageBook';
 import ManageOrder from '@/pages/Admin/ManageOrder';
 import ManageUser from '@/pages/Admin/ManageUser';
-import CheckOutPage from '@/pages/Client/CheckOutPage';
+import OrderPage from '@/pages/Client/OrderPage';
+import HistoryPage from '@/pages/Client/HistoryPage';
 
 const router = Router([
     {
@@ -25,12 +26,16 @@ const router = Router([
             // Public routes - không cần login
             { index: true, element: <HomePage /> },
             { path: '/book/:id', element: <BookPage /> },
+
             { path: '/about', element: <AboutPage /> },
 
             // Protected routes - cần login
             {
                 element: <ProtectedRoute />,
-                children: [{ path: '/checkout', element: <CheckOutPage /> }],
+                children: [
+                    { path: '/order', element: <OrderPage /> },
+                    { path: '/history', element: <HistoryPage /> },
+                ],
             },
         ],
     },

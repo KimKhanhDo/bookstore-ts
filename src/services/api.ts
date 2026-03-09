@@ -1,4 +1,10 @@
-import http from './axios';
+import createInstanceAxios from './axios';
+
+const http = createInstanceAxios(import.meta.env.VITE_BACKEND_URL);
+
+const axiosPayment = createInstanceAxios(
+    import.meta.env.VITE_BACKEND_PAYMENT_URL,
+);
 
 export const loginAPI = (username: string, password: string) => {
     const url = '/api/v1/auth/login';
@@ -198,10 +204,10 @@ export const createOrderAPI = (
     });
 };
 
-// export const getHistoryAPI = () => {
-//     const urlBackend = `/api/v1/history`;
-//     return http.get<IBackendRes<IHistory[]>>(urlBackend);
-// };
+export const getHistoryAPI = () => {
+    const urlBackend = `/api/v1/history`;
+    return http.get<IBackendRes<IHistory[]>>(urlBackend);
+};
 
 export const updateUserInfoAPI = (
     _id: string,
@@ -231,10 +237,39 @@ export const updateUserPasswordAPI = (
     });
 };
 
-// export const getOrdersAPI = (query: string) => {
-//     const urlBackend = `/api/v1/order?${query}`;
-//     return http.get<IBackendRes<IModelPaginate<IOrderTable>>>(urlBackend);
-// };
+export const getOrdersAPI = (query: string) => {
+    const urlBackend = `/api/v1/order?${query}`;
+    return http.get<IBackendRes<IModelPaginate<IOrderTable>>>(urlBackend);
+};
+
+export const getVNPayUrlAPI = (
+    amount: number,
+    locale: string,
+    paymentRef: string,
+) => {
+    const urlBackend = '/vnpay/payment-url';
+    return axiosPayment.post<IBackendRes<{ url: string }>>(urlBackend, {
+        amount,
+        locale,
+        paymentRef,
+    });
+};
+
+export const updatePaymentOrderAPI = (
+    paymentStatus: string,
+    paymentRef: string,
+) => {
+    const urlBackend = '/api/v1/order/update-payment-status';
+    return http.post<IBackendRes<ILogin>>(
+        urlBackend,
+        { paymentStatus, paymentRef },
+        {
+            headers: {
+                delay: 1000,
+            },
+        },
+    );
+};
 
 export const getDashboardAPI = () => {
     const urlBackend = `/api/v1/database/dashboard`;

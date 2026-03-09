@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { getBookByIdAPI } from '@/services/api';
-import BookDetail from '@/components/client/book/detail.book';
-import BookLoader from '@/components/client/book/loader.book';
+import BookDetail from '@/components/client/book/BookDetail';
+import BookLoader from '@/components/client/book/BookLoader';
 
 const BookPage = () => {
     let { id } = useParams();

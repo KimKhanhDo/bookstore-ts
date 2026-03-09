@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import {
     AppstoreOutlined,
     ExceptionOutlined,
+    HeartTwoTone,
     TeamOutlined,
     UserOutlined,
     DollarCircleOutlined,
@@ -24,17 +25,10 @@ const AdminLayout = () => {
     const [collapsed, setCollapsed] = useState(false);
     const [activeMenu, setActiveMenu] = useState('dashboard');
 
-    const { user, setUser, setIsAuthenticated } = useCurrentApp();
+    const { user, setUser, setIsAuthenticated, isAuthenticated, setCarts } =
+        useCurrentApp();
 
-    const handleLogout = async () => {
-        //todo
-        const res = await logOutAPI();
-        if (res.data) {
-            setUser(null);
-            setIsAuthenticated(false);
-            localStorage.removeItem('access_token');
-        }
-    };
+    const location = useLocation();
 
     const items: MenuItem[] = [
         {
@@ -52,11 +46,6 @@ const AdminLayout = () => {
                     key: 'crud',
                     icon: <TeamOutlined />,
                 },
-                // {
-                //     label: 'Files1',
-                //     key: 'file1',
-                //     icon: <TeamOutlined />,
-                // }
             ],
         },
         {
@@ -71,7 +60,22 @@ const AdminLayout = () => {
         },
     ];
 
+    const handleLogout = async () => {
+        const res = await logOutAPI();
+        if (res.data) {
+            setUser(null);
+            setCarts([]);
+            setIsAuthenticated(false);
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('carts');
+        }
+    };
+
     const itemsDropdown = [
+        {
+            label: <Link to={'/'}>Home</Link>,
+            key: 'home',
+        },
         {
             label: (
                 <label
@@ -82,10 +86,6 @@ const AdminLayout = () => {
                 </label>
             ),
             key: 'account',
-        },
-        {
-            label: <Link to={'/'}>Home</Link>,
-            key: 'home',
         },
         {
             label: (
@@ -100,7 +100,25 @@ const AdminLayout = () => {
         },
     ];
 
+    useEffect(() => {
+        const active: any =
+            items.find((item) => location.pathname === (item!.key as any)) ??
+            '/admin';
+        setActiveMenu(active.key);
+    }, [location]);
+
     const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user?.avatar}`;
+
+    if (isAuthenticated === false) {
+        return <Outlet />;
+    }
+
+    const isAdminRoute = location.pathname.includes('admin');
+    if (isAuthenticated === true && isAdminRoute === true) {
+        if (user?.role === 'USER') {
+            return <Outlet />;
+        }
+    }
 
     return (
         <>
@@ -164,7 +182,8 @@ const AdminLayout = () => {
                         <Outlet />
                     </Content>
                     <Footer style={{ padding: 0, textAlign: 'center' }}>
-                        Bookstore Project &copy; KimKhanhDo
+                        React Test Fresher &copy; Hỏi Dân IT - Made with{' '}
+                        <HeartTwoTone />
                     </Footer>
                 </Layout>
             </Layout>

@@ -97,4 +97,25 @@ declare global {
         quantity: number;
         detail: IBookTable;
     }
+
+    interface IHistory {
+        _id: string;
+        name: string;
+        type: string;
+        email: string;
+        phone: string;
+        userId: string;
+        detail: {
+            bookName: string;
+            quantity: number;
+            _id: string;
+        }[];
+        totalPrice: number;
+        createdAt: Date;
+        updatedAt: Date;
+        paymentStatus: string;
+        paymentRef: string;
+    }
+
+    interface IOrderTable extends IHistory {}
 }

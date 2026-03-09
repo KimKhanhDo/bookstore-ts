@@ -6,10 +6,15 @@ import { fetchAccountAPI } from '@/services/api';
 interface IAppContext {
     isAuthenticated: boolean;
     setIsAuthenticated: (value: boolean) => void;
+
     user: IUser | null;
     setUser: (value: IUser | null) => void;
+
     isLoading: boolean;
     setIsLoading: (value: boolean) => void;
+
+    carts: ICart[];
+    setCarts: (v: ICart[]) => void;
 }
 
 type TProps = {
@@ -23,13 +28,19 @@ export const AppProvider = (props: TProps) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [user, setUser] = useState<IUser | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [carts, setCarts] = useState<ICart[]>([]);
 
     useEffect(() => {
         const fetchAccount = async () => {
             const res = await fetchAccountAPI();
+            const carts = localStorage.getItem('carts');
             if (res?.data) {
                 setUser(res.data.user);
                 setIsAuthenticated(true);
+
+                if (carts) {
+                    setCarts(JSON.parse(carts));
+                }
             }
 
             setIsLoading(false);
@@ -63,6 +74,8 @@ export const AppProvider = (props: TProps) => {
                         setUser,
                         isLoading,
                         setIsLoading,
+                        carts,
+                        setCarts,
                     }}
                 >
                     {props.children}

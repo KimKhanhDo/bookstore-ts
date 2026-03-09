@@ -1,4 +1,10 @@
+import TableOrder from '@/components/admin/order/TableOrder';
+
 const ManageOrder = () => {
-    return <div>ManageOrder</div>;
+    return (
+        <div>
+            <TableOrder />
+        </div>
+    );
 };
 export default ManageOrder;

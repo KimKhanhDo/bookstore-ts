@@ -7,7 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import './book.scss';
 import { useCurrentApp } from '@/context/AppContext';
-import ModalGallery from './modal.gallery';
+import ModalGallery from './ModalGallery';
 
 interface IProps {
     currentBook: IBookTable | null;
@@ -92,6 +92,7 @@ const BookDetail = (props: IProps) => {
             return;
         }
 
+        // update localStorage
         const cartStorage = localStorage.getItem('carts');
         if (cartStorage && currentBook) {
             // update
@@ -114,6 +115,8 @@ const BookDetail = (props: IProps) => {
             }
 
             localStorage.setItem('carts', JSON.stringify(carts));
+
+            // sync React Context
             setCarts(carts);
         } else {
             // create

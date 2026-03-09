@@ -1,34 +1,32 @@
-import { useRef, useState } from 'react';
-import { Popconfirm, Button, App } from 'antd';
 import {
+    CloudUploadOutlined,
     DeleteTwoTone,
     EditTwoTone,
     ExportOutlined,
     PlusOutlined,
 } from '@ant-design/icons';
-import { CSVLink } from 'react-csv';
-import { ProTable } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
+import { ProTable } from '@ant-design/pro-components';
+import { App, Button, Popconfirm } from 'antd';
+import { useRef, useState } from 'react';
+import { CSVLink } from 'react-csv';
 
-import CreateBook from './create.book';
-import BookDetail from './detail.book';
-import UpdateBook from './update.book';
+import { deleteUserAPI, getUsersAPI } from '@/services/api';
 import { dateRangeValidate } from '@/helper/dateRangeValidate';
-import { deleteBookAPI, getBooksAPI } from '@/services/api';
+import DetailUser from './DetailUser';
+import CreateUser from './CreateUser';
+import ImportUser from './ImportUser';
+import UpdateUser from './UpdateUser';
 
 type TSearch = {
-    mainText: string;
-    author: string;
+    fullName: string;
+    email: string;
     createdAt: string;
     createdAtRange: string;
-    updatedAt: string;
-    updatedAtRange: string;
-    price: number;
 };
 
-const TableBook = () => {
+const TableUser = () => {
     const actionRef = useRef<ActionType>();
-
     const [meta, setMeta] = useState({
         current: 1,
         pageSize: 5,
@@ -37,45 +35,47 @@ const TableBook = () => {
     });
 
     const [openViewDetail, setOpenViewDetail] = useState<boolean>(false);
-    const [dataViewDetail, setDataViewDetail] = useState<IBookTable | null>(
+    const [dataViewDetail, setDataViewDetail] = useState<IUserTable | null>(
         null,
     );
 
     const [openModalCreate, setOpenModalCreate] = useState<boolean>(false);
+    const [openModalImport, setOpenModalImport] = useState<boolean>(false);
 
-    const [currentDataTable, setCurrentDataTable] = useState<IBookTable[]>([]);
+    const [currentDataTable, setCurrentDataTable] = useState<IUserTable[]>([]);
 
     const [openModalUpdate, setOpenModalUpdate] = useState<boolean>(false);
-    const [dataUpdate, setDataUpdate] = useState<IBookTable | null>(null);
+    const [dataUpdate, setDataUpdate] = useState<IUserTable | null>(null);
 
-    const [isDeleteBook, setIsDeleteBook] = useState<boolean>(false);
+    const [isDeleteUser, setIsDeleteUser] = useState<boolean>(false);
     const { message, notification } = App.useApp();
 
-    const handleDeleteBook = async (_id: string) => {
-        setIsDeleteBook(true);
-        const res = await deleteBookAPI(_id);
+    const handleDeleteUser = async (_id: string) => {
+        setIsDeleteUser(true);
+        const res = await deleteUserAPI(_id);
         if (res && res.data) {
-            message.success('Book deleted successfully');
+            message.success('Delete user successfully');
             refreshTable();
         } else {
             notification.error({
-                message: 'An error occurred',
+                message: 'Error happened',
                 description: res.message,
             });
         }
-        setIsDeleteBook(false);
+        setIsDeleteUser(false);
     };
 
-    const refreshTable = () => {
-        actionRef.current?.reload();
-    };
-
-    const columns: ProColumns<IBookTable>[] = [
+    const columns: ProColumns<IUserTable>[] = [
+        {
+            dataIndex: 'index',
+            valueType: 'indexBorder',
+            width: 48,
+        },
         {
             title: 'Id',
             dataIndex: '_id',
             hideInSearch: true,
-            render(dom, entity) {
+            render(dom, entity, index, action, schema) {
                 return (
                     <a
                         href="#"
@@ -90,71 +90,58 @@ const TableBook = () => {
             },
         },
         {
-            title: 'Book Title',
-            dataIndex: 'mainText',
-            sorter: true,
+            title: 'Fullname',
+            dataIndex: 'fullName',
         },
         {
-            title: 'Category',
-            dataIndex: 'category',
-            hideInSearch: true,
+            title: 'Email',
+            dataIndex: 'email',
+            copyable: true,
         },
         {
-            title: 'Author',
-            dataIndex: 'author',
-            sorter: true,
-        },
-        {
-            title: 'Price',
-            dataIndex: 'price',
-            hideInSearch: true,
-            sorter: true,
-            render(dom, entity) {
-                return (
-                    <>
-                        {new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND',
-                        }).format(entity.price)}
-                    </>
-                );
-            },
-        },
-        {
-            title: 'Updated Date',
-            dataIndex: 'updatedAt',
-            sorter: true,
+            title: 'Created At',
+            dataIndex: 'createdAt',
             valueType: 'date',
+            sorter: true,
             hideInSearch: true,
+        },
+        {
+            title: 'Created At',
+            dataIndex: 'createdAtRange',
+            valueType: 'dateRange',
+            hideInTable: true,
         },
         {
             title: 'Action',
             hideInSearch: true,
-            render(dom, entity) {
+            render(dom, entity, index, action, schema) {
                 return (
                     <>
                         <EditTwoTone
                             twoToneColor="#50c654"
-                            style={{ cursor: 'pointer', margin: '0 10px' }}
+                            style={{ cursor: 'pointer', margin: 15 }}
                             onClick={() => {
-                                setOpenModalUpdate(true);
                                 setDataUpdate(entity);
+                                setOpenModalUpdate(true);
                             }}
                         />
 
                         <Popconfirm
                             placement="leftTop"
-                            title={'Confirm delete book'}
+                            title={'Delete Confirmation'}
                             description={
-                                'Are you sure you want to delete this book?'
+                                'Are you sure you want to delete this user?'
                             }
-                            onConfirm={() => handleDeleteBook(entity._id)}
+                            onConfirm={() => handleDeleteUser(entity._id)}
                             okText="Confirm"
                             cancelText="Cancel"
-                            okButtonProps={{ loading: isDeleteBook }}
+                            okButtonProps={{ loading: isDeleteUser }}
                         >
-                            <span style={{ cursor: 'pointer' }}>
-                                <DeleteTwoTone twoToneColor="#ff4d4f" />
+                            <span style={{ cursor: 'pointer', marginLeft: 20 }}>
+                                <DeleteTwoTone
+                                    twoToneColor="#ff4d4f"
+                                    style={{ cursor: 'pointer' }}
+                                />
                             </span>
                         </Popconfirm>
                     </>
@@ -163,30 +150,33 @@ const TableBook = () => {
         },
     ];
 
+    const refreshTable = () => {
+        actionRef.current?.reload();
+    };
+
     return (
         <>
-            <ProTable<IBookTable, TSearch>
+            <ProTable<IUserTable, TSearch>
                 columns={columns}
                 actionRef={actionRef}
                 cardBordered
-                request={async (params, sort) => {
-                    let query = '';
+                request={async (params, sort, filter) => {
+                    console.log(params, sort, filter);
 
+                    let query = '';
                     if (params) {
                         query += `current=${params.current}&pageSize=${params.pageSize}`;
 
-                        if (params.mainText) {
-                            query += `&mainText=/${params.mainText}/i`;
+                        if (params.email) {
+                            query += `&email=/${params.email}/i`;
                         }
-
-                        if (params.author) {
-                            query += `&author=/${params.author}/i`;
+                        if (params.fullName) {
+                            query += `&fullName=/${params.fullName}/i`;
                         }
 
                         const createDateRange = dateRangeValidate(
                             params.createdAtRange,
                         );
-
                         if (createDateRange) {
                             query += `&createdAt>=${createDateRange[0]}&createdAt<=${createDateRange[1]}`;
                         }
@@ -194,22 +184,12 @@ const TableBook = () => {
 
                     if (sort && sort.createdAt) {
                         query += `&sort=${sort.createdAt === 'ascend' ? 'createdAt' : '-createdAt'}`;
-                    } else query += `&sort=-createdAt`;
-
-                    if (sort && sort.mainText) {
-                        query += `&sort=${sort.mainText === 'ascend' ? 'mainText' : '-mainText'}`;
+                    } else {
+                        // default
+                        query += `&sort=-createdAt`;
                     }
 
-                    if (sort && sort.author) {
-                        query += `&sort=${sort.author === 'ascend' ? 'author' : '-author'}`;
-                    }
-
-                    if (sort && sort.price) {
-                        query += `&sort=${sort.price === 'ascend' ? 'price' : '-price'}`;
-                    }
-
-                    const res = await getBooksAPI(query);
-
+                    const res = await getUsersAPI(query);
                     if (res.data) {
                         setMeta(res.data.meta);
                         setCurrentDataTable(res.data?.result ?? []);
@@ -231,16 +211,16 @@ const TableBook = () => {
                     showTotal: (total, range) => {
                         return (
                             <div>
-                                {range[0]}-{range[1]} of {total} rows
+                                {range[0]}-{range[1]} of {total} items
                             </div>
                         );
                     },
                 }}
-                headerTitle="Book Table"
+                headerTitle="Table user"
                 toolBarRender={() => [
                     <CSVLink
                         data={currentDataTable}
-                        filename="export-book.csv"
+                        filename="export-user.csv"
                     >
                         <Button
                             icon={<ExportOutlined />}
@@ -251,6 +231,14 @@ const TableBook = () => {
                     </CSVLink>,
 
                     <Button
+                        icon={<CloudUploadOutlined />}
+                        type="primary"
+                        onClick={() => setOpenModalImport(true)}
+                    >
+                        Import
+                    </Button>,
+
+                    <Button
                         key="button"
                         icon={<PlusOutlined />}
                         onClick={() => {
@@ -258,33 +246,39 @@ const TableBook = () => {
                         }}
                         type="primary"
                     >
-                        Add New
+                        Add new
                     </Button>,
                 ]}
             />
 
-            <BookDetail
+            <DetailUser
                 openViewDetail={openViewDetail}
                 setOpenViewDetail={setOpenViewDetail}
                 dataViewDetail={dataViewDetail}
                 setDataViewDetail={setDataViewDetail}
             />
 
-            <CreateBook
+            <CreateUser
                 openModalCreate={openModalCreate}
                 setOpenModalCreate={setOpenModalCreate}
                 refreshTable={refreshTable}
             />
 
-            <UpdateBook
+            <ImportUser
+                openModalImport={openModalImport}
+                setOpenModalImport={setOpenModalImport}
+                refreshTable={refreshTable}
+            />
+
+            <UpdateUser
                 openModalUpdate={openModalUpdate}
                 setOpenModalUpdate={setOpenModalUpdate}
                 refreshTable={refreshTable}
-                dataUpdate={dataUpdate}
                 setDataUpdate={setDataUpdate}
+                dataUpdate={dataUpdate}
             />
         </>
     );
 };
 
-export default TableBook;
+export default TableUser;
