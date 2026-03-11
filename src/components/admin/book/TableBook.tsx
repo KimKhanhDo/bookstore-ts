@@ -26,6 +26,8 @@ type TSearch = {
     price: number;
 };
 
+const CSVLinkAny = CSVLink as any;
+
 const TableBook = () => {
     const actionRef = useRef<ActionType>();
 
@@ -238,7 +240,7 @@ const TableBook = () => {
                 }}
                 headerTitle="Book Table"
                 toolBarRender={() => [
-                    <CSVLink
+                    <CSVLinkAny
                         data={currentDataTable}
                         filename="export-book.csv"
                     >
@@ -248,7 +250,7 @@ const TableBook = () => {
                         >
                             Export
                         </Button>
-                    </CSVLink>,
+                    </CSVLinkAny>,
 
                     <Button
                         key="button"

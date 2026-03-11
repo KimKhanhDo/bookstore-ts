@@ -16,10 +16,13 @@ interface IProps {
     }[];
     title: string;
 }
+
+const ImageGalleryAny = ImageGallery as any;
+
 const ModalGallery = (props: IProps) => {
     const { isOpen, setIsOpen, currentIndex, items, title } = props;
     const [activeIndex, setActiveIndex] = useState(0);
-    const refGallery = useRef<ImageGallery>(null);
+    const refGallery = useRef<any>(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -38,14 +41,14 @@ const ModalGallery = (props: IProps) => {
         >
             <Row gutter={[20, 20]}>
                 <Col span={16}>
-                    <ImageGallery
+                    <ImageGalleryAny
                         ref={refGallery}
                         items={items}
                         showPlayButton={false} //hide play button
                         showFullscreenButton={false} //hide fullscreen button
                         startIndex={currentIndex} // start at current index
                         showThumbnails={false} //hide thumbnail
-                        onSlide={(i) => setActiveIndex(i)}
+                        onSlide={(i: number) => setActiveIndex(i)}
                         slideDuration={0} //duration between slices
                     />
                 </Col>

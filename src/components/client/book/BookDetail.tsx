@@ -15,6 +15,8 @@ interface IProps {
 
 type UserAction = 'MINUS' | 'PLUS';
 
+const ImageGalleryAny = ImageGallery as any;
+
 const BookDetail = (props: IProps) => {
     const { currentBook } = props;
     const [imageGallery, setImageGallery] = useState<
@@ -30,7 +32,7 @@ const BookDetail = (props: IProps) => {
         useState<boolean>(false);
     const [currentIndex, setCurrentIndex] = useState<number>(0);
 
-    const refGallery = useRef<ImageGallery>(null);
+    const refGallery = useRef<any>(null);
     const [currentQuantity, setCurrentQuantity] = useState<number>(1);
 
     const { setCarts, user } = useCurrentApp();
@@ -190,7 +192,7 @@ const BookDetail = (props: IProps) => {
                                 sm={24}
                                 xs={24}
                             >
-                                <ImageGallery
+                                <ImageGalleryAny
                                     ref={refGallery}
                                     items={imageGallery}
                                     showPlayButton={false}
