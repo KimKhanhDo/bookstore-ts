@@ -25,6 +25,8 @@ type TSearch = {
     createdAtRange: string;
 };
 
+const CSVLinkAny = CSVLink as any;
+
 const TableUser = () => {
     const actionRef = useRef<ActionType>();
     const [meta, setMeta] = useState({
@@ -218,7 +220,7 @@ const TableUser = () => {
                 }}
                 headerTitle="Table user"
                 toolBarRender={() => [
-                    <CSVLink
+                    <CSVLinkAny
                         data={currentDataTable}
                         filename="export-user.csv"
                     >
@@ -228,7 +230,7 @@ const TableUser = () => {
                         >
                             Export
                         </Button>
-                    </CSVLink>,
+                    </CSVLinkAny>,
 
                     <Button
                         icon={<CloudUploadOutlined />}
